@@ -1,37 +1,161 @@
-*body {
+body {
     font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+    background: linear-gradient(to right, #2b2b2b, #3e3e3e);
+    color: #f5f5dc; /* Beige color for text */
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #343a40;
+    color: #f5f5dc; /* Beige color */
+    padding: 8px 0; /* Reduced padding */
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px; /* Reduced bottom margin */
+}
+
+nav {
+    background-color: #1c1c1c;
+    padding: 8px 16px; /* Reduced padding */
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+nav .logo h2 {
+    color: #f5f5dc; /* Beige color */
+    margin: 0;
+    font-size: 22px; /* Slightly reduced font size */
+    font-weight: bold;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 15px; /* Reduced gap between menu items */
+}
+
+nav ul li a {
+    color: #f5f5dc; /* Beige color */
+    text-decoration: none;
+    font-size: 14px; /* Reduced font size */
+    padding: 8px 12px; /* Reduced padding */
+    transition: background 0.3s;
+}
+
+nav ul li a:hover {
+    background-color: #555555;
+    border-radius: 5px;
+}
+
+#main-content {
+    max-width: 700px; /* Further reduced width */
+    margin: 0 auto;
+    background-color: #2e2e2e; /* Darker background */
+    padding: 15px; /* Reduced padding */
+    border-radius: 8px; /* Slightly reduced border-radius */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: #f5f5dc; /* Beige color */
 }
 
 h1, h2 {
     text-align: center;
+    color: #f5f5dc; /* Beige color */
+    margin-bottom: 20px; /* Increased margin-bottom */
 }
+
 #login-form, #timetable-form, #attendance-form {
-    margin-bottom: 20px;
+    margin-bottom: 20px; /* Increased margin-bottom */
+    background: #4a4a4a; /* Darker form background */
+    padding: 10px; /* Reduced padding */
+    border-radius: 10px; /* Slightly reduced border-radius */
+    color: #f5f5dc; /* Beige color */
+    text-align: center; /* Centering text */
 }
-input, select, button {
-    margin: 5px 0;
-    padding: 5px;
+
+input, select {
+    margin: 12px 0; /* Increased margin */
+    padding: 8px; /* Reduced padding */
+    width: 30%; /* Smaller width */
+    border: 1px solid #ddd;
+    border-radius: 4px; /* Slightly reduced border-radius */
+    background-color: #3e3e3e; /* Darker input background */
+    color: #f5f5dc; /* Beige color */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
+
+button {
+    margin: 12px 0; /* Adjusted margin */
+    padding: 8px 16px; /* Reduced padding */
+    width: 20%; /* Smaller width */
+    background-color: #555555;
+    color: #f5f5dc; /* Beige color */
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+    border-radius: 4px; /* Slightly reduced border-radius */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+button:hover {
+    background-color: #6b6b6b;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 20px; /* Increased margin-top */
+    background-color: #3e3e3e; /* Darker table background */
+    color: #f5f5dc; /* Beige color */
 }
+
 th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    border: 1px solid #555555;
+    padding: 10px; /* Reduced padding */
     text-align: left;
 }
+
 th {
-    background-color: #f2f2f2;
+    background-color: #2b2b2b;
+    color: #f5f5dc; /* Beige color */
 }
+
+#logout-btn {
+    float: right;
+    background-color: #e74c3c;
+    color: #f5f5dc; /* Beige color */
+    margin-top: 20px; /* Increased margin-top */
+    width: 50%; /* Smaller width */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .hidden {
     display: none;
 }
-#logout-btn {
-    float: right;
+
+.carousel-item {
+    height: 50%; /* Make the slide full height of the viewport */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.carousel-item img {
+    width: 100%;
+    height: 600px;
+    object-fit: cover; /* Ensures the image covers the slide without distortion */
+}
+
+#footer{
+    color: white;
 }
