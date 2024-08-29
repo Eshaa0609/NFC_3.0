@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Attendance System</title>
+    
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(45deg, #83a4d4, #b6fbff);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        h1 {
+            margin-top: 30px;
+            font-size: 2.5em;
+            color: #000000;
+            text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.2);
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            margin: 20px auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .tab {
+            display: flex;
+            justify-content: space-around;
+            background: #4a90e2;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .tab button {
+            background: transparent;
+            border: none;
+            padding: 15px;
+            color: #fff;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .tab button:hover {
+            background: #357ABD;
+        }
+        .tab button.active {
+            background: #357ABD;
+        }
+        .tabcontent {
+            display: none;
+        }
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 1.1em;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background: #4a90e2;
+            color: white;
+            font-size: 1.1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #357ABD;
+        }
+        #reportOutput table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #reportOutput table, #reportOutput th, #reportOutput td {
+            border: 1px solid #ccc;
+        }
+        #reportOutput th, #reportOutput td {
+            padding: 10px;
+        }
+        #studentList li {
+            background: #eee;
+            padding: 15px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #studentList li.present {
+            background: #d4edda;
+        }
+        #studentList li.absent {
+            background: #f8d7da;
+        }
+        /* Animations */
+        .fade {
+            animation: fadeEffect 1s;
+        }
+        @keyframes fadeEffect {
+            from {opacity: 0;} 
+            to {opacity: 1;}
+        }
+    </style>
+
+
+</head>
+<body>
+    <div class="container">
+        <h1>Advanced Attendance System</h1>
+        
+        <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'Attendance')" id="defaultOpen">Attendance</button>
+            <button class="tablinks" onclick="openTab(event, 'Courses')">Courses</button>
+            <button class="tablinks" onclick="openTab(event, 'Reports')">Reports</button>
+        </div>
+
+        <div id="Attendance" class="tabcontent">
+            <h2>Mark Attendance</h2>
+            <div class="form-group">
+                <select id="courseSelect"></select>
+                <input type="date" id="attendanceDate">
+            </div>
+            <ul id="studentList"></ul>
+        </div>
+
+        <div id="Courses" class="tabcontent">
+            <h2>Manage Courses</h2>
+            <div class="form-group">
+                <input type="text" id="newCourseName" placeholder="Enter course name">
+                <button onclick="addCourse()">Add Course</button>
+            </div>
+            <ul id="courseList"></ul>
+        </div>
+
+        <div id="Reports" class="tabcontent">
+            <h2>Attendance Reports</h2>
+            <div class="form-group">
+                <select id="reportCourseSelect"></select>
+                <button onclick="generateReport()">Generate Report</button>
+            </div>
+            <div id="reportOutput"></div>
+        </div>
+    </div>
+
+    <script>
+        let students = {};
+        let courses = [];
+        let attendanceRecords = {};
+
+        function renderStudentList() {
+            const courseId = document.getElementById('courseSelect').value;
+            const date = document.getElementById('attendanceDate').value;
+            const studentList = document.getElementById('studentList');
+            studentList.innerHTML = '';
+            
+            if (!courseId || !date) return;
+
+            students[courseId].forEach((student) => {
+                const li = document.createElement('li');
+                li.textContent = student.name;
+                
+                const status = getAttendanceStatus(courseId, date, student.id);
+                li.className = status;
+                
+                const presentButton = document.createElement('button');
+                presentButton.textContent = 'Present';
+                presentButton.onclick = () => markAttendance(courseId, date, student.id, true);
+                
+                const absentButton = document.createElement('button');
+                absentButton.textContent = 'Absent';
+                absentButton.onclick = () => markAttendance(courseId, date, student.id, false);
+                
+                li.appendChild(presentButton);
+                li.appendChild(absentButton);
+                studentList.appendChild(li);
+            });
+        }
+
+        function addCourse() {
+            const newCourseName = document.getElementById('newCourseName').value.trim();
+            if (newCourseName) {
+                const courseId = 'course_' + Date.now();
+                courses.push({ id: courseId, name: newCourseName });
+                students[courseId] = [];
+                document.getElementById('newCourseName').value = '';
+                renderCourseList();
+                updateCourseSelects();
+            }
+        }
+
+        function renderCourseList() {
+            const courseList = document.getElementById('courseList');
+            courseList.innerHTML = '';
+            courses.forEach(course => {
+                const li = document.createElement('li');
+                li.textContent = course.name;
+                
+                const addStudentInput = document.createElement('input');
+                addStudentInput.type = 'text';
+                addStudentInput.placeholder = 'Add student';
+                
+                const addStudentButton = document.createElement('button');
+                addStudentButton.textContent = 'Add';
+                addStudentButton.onclick = () => addStudentToCourse(course.id, addStudentInput.value);
+                
+                li.appendChild(addStudentInput);
+                li.appendChild(addStudentButton);
+                courseList.appendChild(li);
+            });
+        }
+
+        function addStudentToCourse(courseId, studentName) {
+            if (studentName.trim()) {
+                const studentId = 'student_' + Date.now();
+                students[courseId].push({ id: studentId, name: studentName.trim() });
+                renderCourseList();
+            }
+        }
+
+        function updateCourseSelects() {
+            const courseSelect = document.getElementById('courseSelect');
+            const reportCourseSelect = document.getElementById('reportCourseSelect');
+            courseSelect.innerHTML = '';
+            reportCourseSelect.innerHTML = '';
+            courses.forEach(course => {
+                const option = document.createElement('option');
+                option.value = course.id;
+                option.textContent = course.name;
+                courseSelect.appendChild(option.cloneNode(true));
+                reportCourseSelect.appendChild(option);
+            });
+        }
+
+        function markAttendance(courseId, date, studentId, isPresent) {
+            if (!attendanceRecords[courseId]) {
+                attendanceRecords[courseId] = {};
+            }
+            if (!attendanceRecords[courseId][date]) {
+                attendanceRecords[courseId][date] = {};
+            }
+            attendanceRecords[courseId][date][studentId] = isPresent;
+            renderStudentList();
+        }
+
+        function getAttendanceStatus(courseId, date, studentId) {
+            if (attendanceRecords[courseId] && 
+                attendanceRecords[courseId][date] && 
+                attendanceRecords[courseId][date][studentId] !== undefined) {
+                return attendanceRecords[courseId][date][studentId] ? 'present' : 'absent';
+            }
+            return '';
+        }
+
+        function calculateAttendancePercentage(courseId, studentId) {
+            const courseAttendance = attendanceRecords[courseId];
+            if (!courseAttendance) return 0;
+
+            const totalClasses = Object.keys(courseAttendance).length;
+            const attendedClasses = Object.keys(courseAttendance).filter(date => courseAttendance[date][studentId]).length;
+
+            return totalClasses === 0 ? 0 : (attendedClasses / totalClasses) * 100;
+        }
+
+    
+
+        function generateReport() {
+            const courseId = document.getElementById('reportCourseSelect').value;
+            const reportOutput = document.getElementById('reportOutput');
+            reportOutput.innerHTML = '';
+            
+            if (!courseId || !attendanceRecords[courseId]) {
+                reportOutput.textContent = 'No attendance records for this course.';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.style.borderCollapse = 'collapse';
+            table.style.width = '100%';
+
+            // Header row
+            const headerRow = table.insertRow();
+            headerRow.insertCell().textContent = 'Student';
+            const dates = Object.keys(attendanceRecords[courseId]).sort();
+            dates.forEach(date => {
+                headerRow.insertCell().textContent = date;
+            });
+            headerRow.insertCell().textContent = 'Attendance %';
+
+            // Data rows
+            students[courseId].forEach(student => {
+                const row = table.insertRow();
+                row.insertCell().textContent = student.name;
+                dates.forEach(date => {
+                    const cell = row.insertCell();
+                    const status = getAttendanceStatus(courseId, date, student.id);
+                    cell.textContent = status === 'present' ? 'P' : status === 'absent' ? 'A' : '-';
+                    cell.style.backgroundColor = status === 'present' ? '#d4edda' : status === 'absent' ? '#f8d7da' : '';
+                });
+
+                const percentageCell = row.insertCell();
+                percentageCell.textContent = `${calculateAttendancePercentage(courseId, student.id).toFixed(2)}%`;
+                percentageCell.className = 'percentage';
+            });
+
+            reportOutput.appendChild(table);
+
+            // Overall attendance percentage
+            const overallPercentage = courses.flatMap(course => students[course.id].map(student => ({
+                student,
+                percentage: calculateOverallAttendance(student.id)
+            }))).reduce((acc, curr) => {
+                if (!acc[curr.student.id]) {
+                    acc[curr.student.id] = { student: curr.student, total: 0, attended: 0 };
+                }
+                acc[curr.student.id].total += 1;
+                acc[curr.student.id].attended += curr.percentage;
+                return acc;
+            }, {});
+
+            const overallTable = document.createElement('table');
+            overallTable.style.borderCollapse = 'collapse';
+            overallTable.style.width = '100%';
+            overallTable.style.marginTop = '20px';
+
+            const overallHeaderRow = overallTable.insertRow();
+            overallHeaderRow.insertCell().textContent = 'Student';
+            overallHeaderRow.insertCell().textContent = 'Overall Attendance %';
+
+            for (let studentId in overallPercentage) {
+                const { student, total, attended } = overallPercentage[studentId];
+                const row = overallTable.insertRow();
+                row.insertCell().textContent = student.name;
+                row.insertCell().textContent = `${(attended / total).toFixed(2)}%`;
+            }
+
+            reportOutput.appendChild(overallTable);
+        }
+
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // Event Listeners
+        document.getElementById('courseSelect').addEventListener('change', renderStudentList);
+        document.getElementById('attendanceDate').addEventListener('change', renderStudentList);
+
+        // Initialize
+        document.getElementById("defaultOpen").click();
+
+        // Add some initial data
+        addCourse();
+        addStudentToCourse('course_1', 'Alice');
+        addStudentToCourse('course_1', 'Bob');
+        addStudentToCourse('course_1', 'Charlie');
+        updateCourseSelects();
+    </script>
+</body>
+</html>
