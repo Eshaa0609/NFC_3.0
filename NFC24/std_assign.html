@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Assignment Dashboard</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f3f4f6;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 800px;
+        margin: 40px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+      }
+      .toggle-buttons {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+      .toggle-btn {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin: 0 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+      .toggle-btn:hover {
+        background-color: #45a049;
+      }
+      .toggle-btn.active {
+        background-color: #333;
+      }
+      .assignment-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .assignment-card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s;
+      }
+      .assignment-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+      .assignment-card h3 {
+        margin-top: 0;
+        color: #4caf50;
+      }
+      .submit-btn {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-top: 10px;
+      }
+      .submit-btn:hover {
+        background-color: #45a049;
+      }
+      .view-btn {
+        background-color: #008cba;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-top: 10px;
+      }
+      .view-btn:hover {
+        background-color: #007b9a;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Student Assignment Dashboard</h1>
+
+      <div class="toggle-buttons">
+        <button
+          id="pendingBtn"
+          class="toggle-btn active"
+          onclick="toggleView('pending')"
+        >
+          Pending Assignments
+        </button>
+        <button
+          id="submittedBtn"
+          class="toggle-btn"
+          onclick="toggleView('submitted')"
+        >
+          Submitted Assignments
+        </button>
+      </div>
+
+      <div id="pendingAssignments" class="assignment-list"></div>
+      <div id="submittedAssignments" class="assignment-list hidden"></div>
+
+      <script>
+        let assignments = JSON.parse(localStorage.getItem("assignments")) || [];
+
+        function createAssignmentCard(assignment) {
+          const card = document.createElement("div");
+          card.className = "assignment-card";
+          card.innerHTML = `
+            <h3>${assignment.title}</h3>
+            <p>${assignment.details}</p>
+            <p>Due Date: ${assignment.deadline}</p>
+            ${
+              assignment.status === "pending"
+                ? `<input type="file" id="file-${assignment.id}">
+                   <button class="submit-btn" onclick="submitAssignment(${assignment.id})">Submit</button>`
+                : `<button class="view-btn" onclick="viewSubmission(${assignment.id})">View Submission</button>`
+            }
+          `;
+          return card;
+        }
+
+        function renderAssignments() {
+          const pendingContainer =
+            document.getElementById("pendingAssignments");
+          const submittedContainer = document.getElementById(
+            "submittedAssignments"
+          );
+
+          pendingContainer.innerHTML = "";
+          submittedContainer.innerHTML = "";
+
+          assignments.forEach((assignment) => {
+            if (assignment.status === "pending") {
+              pendingContainer.appendChild(createAssignmentCard(assignment));
+            } else {
+              submittedContainer.appendChild(createAssignmentCard(assignment));
+            }
+          });
+        }
+
+        function submitAssignment(id) {
+          const assignment = assignments.find((a) => a.id === id);
+          const fileInput = document.getElementById(`file-${id}`);
+
+          if (assignment && fileInput.files.length > 0) {
+            assignment.status = "submitted";
+            assignment.file = fileInput.files[0];
+            localStorage.setItem("assignments", JSON.stringify(assignments));
+            renderAssignments();
+          } else {
+            alert("Please select a file to submit.");
+          }
+        }
+
+        function viewSubmission(id) {
+          const assignment = assignments.find((a) => a.id === id);
+          if (assignment && assignment.file) {
+            alert(`Viewing submission: ${assignment.file.name}`);
+          } else {
+            alert("No submission found.");
+          }
+        }
+
+        function toggleView(view) {
+          document
+            .getElementById("pendingAssignments")
+            .classList.toggle("hidden", view !== "pending");
+          document
+            .getElementById("submittedAssignments")
+            .classList.toggle("hidden", view !== "submitted");
+
+          document
+            .getElementById("pendingBtn")
+            .classList.toggle("active", view === "pending");
+          document
+            .getElementById("submittedBtn")
+            .classList.toggle("active", view === "submitted");
+        }
+
+        renderAssignments();
+      </script>
+    </div>
+  </body>
+</html>
