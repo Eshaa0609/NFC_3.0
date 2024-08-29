@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Workflow System</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        #logout-message {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #dc3545; /* Red color for logout message */
+        }
+
+    </style>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Educational Workflow System</h1>
+    </header>
+    
+    <nav>
+        <div class="logo">
+            <h2>EduFlow</h2>
+        </div>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#">Timetable</a></li>
+            <li><a href="#">Attendance</a></li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="#" onclick="confirmLogout()">Logout</a></li>
+        </ul>
+    </nav>
+
+    <div id="logout-message" class="hidden">
+        <p>You have been logged out. Returning to the home page...</p>
+    </div>
+
+    <script src="logout.js"></script>
+</body>
+</html>
