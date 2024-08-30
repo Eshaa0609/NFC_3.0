@@ -99,6 +99,13 @@
         opacity: 0;
         transition: opacity 1s ease-in-out;
       }
+
+      .assignment-count {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 1.2em;
+        color: #333;
+      }
     </style>
     <link rel="stylesheet" href="style.css">
   </head>
@@ -124,6 +131,8 @@
           <button id="submittedBtn" class="toggle-btn" onclick="toggleView('submitted')">Submitted Assignments</button>
         </div>
       </center>
+
+      <div class="assignment-count" id="pendingCount">Pending Assignments: 0</div>
 
       <div id="pendingAssignments" class="assignment-list"></div>
       <div id="submittedAssignments" class="assignment-list hidden"></div>
@@ -154,17 +163,23 @@
         function renderAssignments() {
           const pendingContainer = document.getElementById("pendingAssignments");
           const submittedContainer = document.getElementById("submittedAssignments");
+          const pendingCount = document.getElementById("pendingCount");
 
           pendingContainer.innerHTML = "";
           submittedContainer.innerHTML = "";
 
+          let pendingCountValue = 0;
+
           assignments.forEach((assignment) => {
             if (assignment.status === "pending") {
               pendingContainer.appendChild(createAssignmentCard(assignment));
+              pendingCountValue++;
             } else {
               submittedContainer.appendChild(createAssignmentCard(assignment));
             }
           });
+
+          pendingCount.textContent = `Pending Assignments: ${pendingCountValue}`;
         }
 
         function submitAssignment(id) {
