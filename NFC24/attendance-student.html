@@ -1,256 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Student Assignment Dashboard</title>
+    <title>Student Attendance Report</title>
     <style>
-      body {
-        font-family: 'Roboto', sans-serif;
-        background: linear-gradient(45deg, #83a4d4, #b6fbff);
-        color: #333;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      .container {
-        max-width: 800px;
-        margin: 40px auto;
-        background-color: rgba(255, 255, 255, 0.9);
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      }
-
-      h1, h2 {
-        text-align: center;
-        color: #000000;
-        margin-bottom: 20px;
-        font-weight: 600;
-        text-shadow: 1px 2px 2px rgba(0, 0, 0, 0.2);
-      }
-
-      .toggle {
-        display: flex;
-        justify-content: space-around;
-        background: #4a90e2;
-        border-radius: 10px;
-        margin-bottom: 20px;
-      }
-
-      .toggle button {
-        background: transparent;
-        border: none;
-        padding: 15px;
-        color: #fff;
-        font-size: 1.2em;
-        cursor: pointer;
-        margin-left: 40%;
-        align-items: center;
-        align-content: center;
-        transition: background 0.3s;
-        padding-left: 30%;
-        justify-content: center;
-      }
-
-      .toggle button:hover,
-      .toggle button.active {
-        background: #357ABD;
-      }
-
-      .tabcontent {
-        display: none;
-      }
-
-      .form-group input, 
-      .form-group select {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        margin-right: 10px;
-        font-size: 1.1em;
-      }
-
-      button {
-        padding: 10px 20px;
-        border: none;
-        background: #4a90e2;
-        color: white;
-        font-size: 1.1em;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background 0.3s;
-      }
-
-      button:hover {
-        background: #357ABD;
-      }
-
-      #reportOutput table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-      }
-
-      #reportOutput table, 
-      #reportOutput th, 
-      #reportOutput td {
-        border: 1px solid #ccc;
-      }
-
-      #reportOutput th, 
-      #reportOutput td {
-        padding: 10px;
-      }
-
-      #studentList li {
-        background: #eee;
-        padding: 15px;
-        margin: 5px 0;
-        border-radius: 5px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      #studentList li.present {
-        background: #d4edda;
-      }
-
-      #studentList li.absent {
-        background: #f8d7da;
-      }
-
-      .fade {
-        animation: fadeEffect 1s;
-      }
-
-      @keyframes fadeEffect {
-        from { opacity: 0; } 
-        to { opacity: 1; }
-      }
+        body {
+            font-family: "Roboto", sans-serif;
+            background: linear-gradient(45deg, #83a4d4, #b6fbff);
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            width: 80%;
+            margin: 20px auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        canvas {
+            max-width: 100%;
+            margin: 20px 0;
+        }
+        .student-report {
+            margin-top: 20px;
+        }
+        .student-report h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
     </style>
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <nav>
-      <div class="logo">
-          <h2>TRACKADEMICS</h2>
-      </div>
-      <ul>
-          <li><a href="login.html">Home</a></li>
-          <li><a href="timetable-student.html">Timetable</a></li>
-          <li><a href="attendance-student.html">Attendance</a></li>
-          <li><a href="assignment-student.html">Assignment</a></li>
-          <li><a href="profile.html">Profile</a></li>
-          <li><a href="logout.html">Logout</a></li>
-      </ul>
-    </nav>
+</head>
+<body>
+
     <div class="container">
-      <h1>Student Assignment Dashboard</h1>
-      <center>
-      <div class="toggle-buttons">
-        <button
-          id="pendingBtn"
-          class="toggle-btn active"
-          onclick="toggleView('pending')"
-        >
-          Pending Assignments
-        </button>
-        <button
-          id="submittedBtn"
-          class="toggle-btn"
-          onclick="toggleView('submitted')"
-        >
-          Submitted Assignments
-        </button>
-      </div>
-      </center>
-
-      <div id="pendingAssignments" class="assignment-list"></div>
-      <div id="submittedAssignments" class="assignment-list hidden"></div>
-
-      <script>
-        let assignments = JSON.parse(localStorage.getItem("assignments")) || [];
-
-        function createAssignmentCard(assignment) {
-          const card = document.createElement("div");
-          card.className = "assignment-card";
-          card.innerHTML = `
-            <h3>${assignment.title}</h3>
-            <p>${assignment.details}</p>
-            <p>Due Date: ${assignment.deadline}</p>
-            ${
-              assignment.status === "pending"
-                ? `<input type="file" id="file-${assignment.id}">
-                   <button class="submit-btn" onclick="submitAssignment(${assignment.id})">Submit</button>`
-                : `<button class="view-btn" onclick="viewSubmission(${assignment.id})">View Submission</button>`
-            }
-          `;
-          return card;
-        }
-
-        function renderAssignments() {
-          const pendingContainer =
-            document.getElementById("pendingAssignments");
-          const submittedContainer = document.getElementById(
-            "submittedAssignments"
-          );
-
-          pendingContainer.innerHTML = "";
-          submittedContainer.innerHTML = "";
-
-          assignments.forEach((assignment) => {
-            if (assignment.status === "pending") {
-              pendingContainer.appendChild(createAssignmentCard(assignment));
-            } else {
-              submittedContainer.appendChild(createAssignmentCard(assignment));
-            }
-          });
-        }
-
-        function submitAssignment(id) {
-          const assignment = assignments.find((a) => a.id === id);
-          const fileInput = document.getElementById(`file-${id}`);
-
-          if (assignment && fileInput.files.length > 0) {
-            assignment.status = "submitted";
-            assignment.file = fileInput.files[0];
-            localStorage.setItem("assignments", JSON.stringify(assignments));
-            renderAssignments();
-          } else {
-            alert("Please select a file to submit.");
-          }
-        }
-
-        function viewSubmission(id) {
-          const assignment = assignments.find((a) => a.id === id);
-          if (assignment && assignment.file) {
-            alert(`Viewing submission: ${assignment.file.name}`);
-          } else {
-            alert("No submission found.");
-          }
-        }
-
-        function toggleView(view) {
-          document
-            .getElementById("pendingAssignments")
-            .classList.toggle("hidden", view !== "pending");
-          document
-            .getElementById("submittedAssignments")
-            .classList.toggle("hidden", view !== "submitted");
-
-          document
-            .getElementById("pendingBtn")
-            .classList.toggle("active", view === "pending");
-          document
-            .getElementById("submittedBtn")
-            .classList.toggle("active", view === "submitted");
-        }
-
-        renderAssignments();
-      </script>
+        <h1>Your Attendance Report</h1>
+        <div id="comprehensiveReport">
+            <!-- The report will be automatically loaded here -->
+        </div>
     </div>
-  </body>
+
+    <!-- Load Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const reportHTML = localStorage.getItem('attendanceReport');
+            const reportContainer = document.getElementById('comprehensiveReport');
+
+            if (reportHTML) {
+                // Load the report HTML into the container
+                reportContainer.innerHTML = reportHTML;
+
+                // Extract data for each student
+                const studentReports = {};
+                const tableRows = reportContainer.querySelectorAll('tbody tr');
+
+                tableRows.forEach(row => {
+                    const studentName = row.cells[0].textContent.trim(); // Assuming 'Student Name' is the 1st column
+                    const presentCount = parseInt(row.cells[2].textContent.trim(), 10); // Assuming 'Present' is the 3rd column
+                    const absentCount = parseInt(row.cells[3].textContent.trim(), 10); // Assuming 'Absent' is the 4th column
+
+                    if (!studentReports[studentName]) {
+                        studentReports[studentName] = { present: 0, absent: 0 };
+                    }
+
+                    studentReports[studentName].present += presentCount || 0;
+                    studentReports[studentName].absent += absentCount || 0;
+                });
+
+                // Generate pie charts for each student
+                for (const [studentName, attendance] of Object.entries(studentReports)) {
+                    const studentDiv = document.createElement('div');
+                    studentDiv.className = 'student-report';
+
+                    const heading = document.createElement('h2');
+                    heading.textContent = `${studentName}'s Attendance`;
+                    studentDiv.appendChild(heading);
+
+                    const canvas = document.createElement('canvas');
+                    studentDiv.appendChild(canvas);
+
+                    reportContainer.appendChild(studentDiv);
+
+                    // Create the pie chart for the student
+                    new Chart(canvas, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Present', 'Absent'],
+                            datasets: [{
+                                data: [
+                                    attendance.present,
+                                    attendance.absent
+                                ],
+                                backgroundColor: ['#4caf50', '#f44336']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(tooltipItem) {
+                                            const total = attendance.present + attendance.absent;
+                                            const percentage = total > 0 
+                                                ? ((tooltipItem.raw / total) * 100).toFixed(2) 
+                                                : 0;
+                                            return `${tooltipItem.label}: ${tooltipItem.raw} (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } else {
+                reportContainer.innerHTML = '<p>No attendance data available.</p>';
+            }
+        });
+    </script>
+
+</body>
 </html>
